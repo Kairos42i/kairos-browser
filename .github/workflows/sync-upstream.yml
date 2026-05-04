@@ -1,0 +1,26 @@
+name: Sync fork with upstream
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: dev
+      - name: Sync from upstream
+        id: sync
+        uses: kuma0128/sync-upstream-action@v1
+        with:
+          upstream_repo: browseros-ai/BrowserOS
+          upstream_branch: dev
+          target_branch: dev
+          mode: pr
+          pr_title: "chore: sync with upstream BrowserOS"
+          create_issue_on_conflict: true

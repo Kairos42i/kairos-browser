@@ -1,0 +1,82 @@
+version: "3.8"
+
+services:
+  # ── Chrome Headless ─────────────────────────────────────────
+  chrome:
+    image: zenika/alpine-chrome:latest
+    container_name: kairos-chrome
+    shm_size: "2g"
+    security_opt:
+      - seccomp=chrome.json
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=1g
+    read_only: true
+    ports:
+      - "127.0.0.1:9222:9222"
+    environment:
+      - CHROMIUM_FLAGS=--headless --no-sandbox --disable-gpu --remote-debugging-port=9222 --remote-debugging-address=0.0.0.0 --disable-dev-shm-usage --js-flags=--max-old-space-size=512 --disable-extensions --no-first-run --no-default-browser-check --disable-sync --disable-translate --mute-audio
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9222/json/version"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ── MCP Gateway ────────────────────────────────────────────
+  mcp-gateway:
+    build:
+      context: ./packages/browseros-agent/apps/server
+      dockerfile: Dockerfile
+    container_name: kairos-mcp
+    depends_on:
+      chrome:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:9100:9100"
+    environment:
+      - BROWSEROS_CDP_PORT=9222
+      - BROWSEROS_SERVER_PORT=9100
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - BROWSEROS_SKIP_OPENCLAW=1
+      - BROWSEROS_CDP_HOST=chrome
+    volumes:
+      - mcp-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9100/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ── WireGuard VPN (opcional) ──────────────────────────────
+  wireguard:
+    image: weejewel/wg-easy
+    container_name: kairos-vpn
+    profiles:
+      - vpn
+    environment:
+      - WG_HOST=vpn.tudominio.com
+      - PASSWORD=changeme
+      - WG_DEFAULT_ADDRESS=10.8.0.x
+      - WG_DEFAULT_DNS=1.1.1.1
+      - WG_PORT=51820
+    ports:
+      - "51820:51820/udp"
+      - "51821:51821/tcp"
+    volumes:
+      - wireguard-data:/etc/wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: unless-stopped
+
+volumes:
+  mcp-data:
+  wireguard-data:
