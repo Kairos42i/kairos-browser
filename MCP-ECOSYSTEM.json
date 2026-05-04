@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "deepwiki": {
+      "serverUrl": "https://mcp.deepwiki.com/mcp",
+      "description": "Analyze ANY GitHub repo - architecture, code, license, entry points",
+      "tools": [
+        "ask_question",
+        "read_wiki_contents",
+        "read_wiki_structure"
+      ]
+    },
+    "browser-use": {
+      "description": "AI browser automation - CDP, DOM, agent loop, 87.9K\u2605 MIT",
+      "python": "pip install browser-use>=0.12.6",
+      "docs": "https://docs.browser-use.com"
+    },
+    "langgraph": {
+      "description": "Stateful agent orchestrator - 9% overhead, checkpointing, MIT",
+      "python": "pip install langgraph>=0.3.0",
+      "docs": "https://langchain-ai.github.io/langgraph/"
+    },
+    "dify": {
+      "description": "AI platform with MCP client, RAG, workflows - 55K\u2605 Apache 2",
+      "deploy": "docker compose up -d",
+      "docs": "https://docs.dify.ai"
+    }
+  }
+}

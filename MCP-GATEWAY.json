@@ -1,0 +1,64 @@
+{
+  "name": "KAIROS MCP Gateway",
+  "version": "1.0.0",
+  "description": "Unified MCP endpoint that routes to Stealth, Playwright, Chrome CDP, and DeepWiki",
+  "endpoints": {
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/mcp",
+      "tools": [
+        "ask_question",
+        "read_wiki_contents",
+        "read_wiki_structure"
+      ],
+      "auth": "none",
+      "type": "remote"
+    },
+    "stealth-browser": {
+      "tools_total": 133,
+      "key_tools": [
+        "browser_navigate",
+        "browser_click",
+        "browser_snapshot",
+        "browser_fill",
+        "browser_screenshot",
+        "browser_evaluate",
+        "solve_captcha",
+        "cloudflare_bypass",
+        "fingerprint_rotate"
+      ],
+      "type": "local"
+    },
+    "playwright": {
+      "tools_total": 19,
+      "key_tools": [
+        "browser_navigate",
+        "browser_click",
+        "browser_type",
+        "browser_snapshot",
+        "browser_fill_form"
+      ],
+      "type": "local"
+    },
+    "chrome-cdp": {
+      "port": 9222,
+      "browser": "Chrome/149.0.7808.0",
+      "capabilities": [
+        "CDP direct access",
+        "Page management",
+        "DOM inspection",
+        "Network interception",
+        "JS evaluation"
+      ],
+      "type": "cdp"
+    }
+  },
+  "routing_rules": {
+    "anti_bot_required": "stealth-browser",
+    "fast_and_simple": "playwright",
+    "deep_analysis": "chrome-cdp",
+    "code_analysis": "deepwiki",
+    "form_filling": "playwright",
+    "scraping_with_bypass": "stealth-browser",
+    "screenshot": "any"
+  }
+}
